@@ -35,5 +35,6 @@ module.exports = {
     'no-console': 'off',
     // Allow function param reassign for array or object elements or properties
     'no-param-reassign': ['error', { props: false }],
+    'react/jsx-filename-extension': [0],
   },
 };
