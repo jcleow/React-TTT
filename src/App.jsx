@@ -1,32 +1,38 @@
 /* eslint-disable react/button-has-type */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 // Display each button on the TTT board
 function Button({
-  squareNum, changePlayer, updateBoard, player,
+  squareNum, markings, setMarkings, changePlayer, updatePosMatrix, player,
 }) {
-  const [marking, setMarking] = useState('');
-
   let isValidMove = false;
+  const i = squareNum - 1;
 
   const changeMarking = () => {
-    if (marking === '') {
+    // Create a shallow copy of existing markings
+    const updatedMarkings = [...markings];
+    if (markings[i] === null) {
       isValidMove = true;
       if (player === 'X') {
-        setMarking('X');
+        updatedMarkings[i] = 'X';
+        setMarkings(updatedMarkings);
       } else if (player === 'O') {
-        setMarking('O');
+        updatedMarkings[i] = 'O';
+        setMarkings(updatedMarkings);
       }
     }
   };
+  // useEffect(() => {
+  //   updatePosMatrix(squareNum, markings);
+  // });
 
   const buttonEventHandler = () => {
     changeMarking();
     if (isValidMove) {
       changePlayer();
     }
-    // Must only updateBoard after player is changed
-    updateBoard(squareNum, player);
+    console.log(markings, 'markings');
+    updatePosMatrix(squareNum, markings[i]);
   };
 
   return (
@@ -34,7 +40,7 @@ function Button({
       className="button"
       onClick={buttonEventHandler}
     >
-      {marking}
+      {markings[i]}
     </button>
   );
 }
@@ -69,19 +75,21 @@ function Board() {
   // Defining the (use)State of the board
   // posMatrix is a replica of boardMatrix but with 'X' and 'O' positions
   const [posMatrix, setPosMatrix] = useState(boardMatrix);
+  const [markings, setMarkings] = useState(Array(9).fill(null));
 
-  // Function that updates the TTT board
-  const updateBoard = (squareNum, marking) => {
+  // Function that updates the TTT (marking) in our TTT position matrix
+  const updatePosMatrix = (squareNum, updatedMarking) => {
     posMatrix.forEach((row, index) => {
       if (row.includes(squareNum)) {
-        posMatrix[index][row.indexOf(squareNum)] = marking;
+        console.log(squareNum, 'squareNum');
+        console.log(updatedMarking, 'updatedMarkings');
+        posMatrix[index][row.indexOf(squareNum)] = updatedMarking;
         setPosMatrix(posMatrix);
       }
     });
-    console.log(posMatrix, 'posMatrix');
   };
 
-  // Function that resets the TTT board
+  // Function that resets the TTT board position matrix
   const resetMatrix = () => {
     setPosMatrix(boardMatrix);
     console.log(posMatrix, 'posMatrix-2');
@@ -105,8 +113,10 @@ function Board() {
       <Button
         key={num}
         squareNum={num}
+        markings={markings}
+        setMarkings={setMarkings}
         changePlayer={changePlayer}
-        updateBoard={updateBoard}
+        updatePosMatrix={updatePosMatrix}
         player={player}
       />
     ));
